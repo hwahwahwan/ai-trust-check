@@ -1,5 +1,33 @@
+# macOS 메타데이터
+.DS_Store
+._*
+
+# Python 캐시 및 가상환경
 __pycache__/
 *.py[cod]
 .venv/
+venv/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# 테스트 커버리지 및 빌드 산출물
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# 개인 환경 설정 (공유용 예시는 유지)
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# 편집기 개인 설정 및 임시 파일
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
