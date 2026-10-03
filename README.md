@@ -50,17 +50,37 @@ F6은 최신성이 중요하고 현재에도 유효하면 **예**, 오래된 정
 
 ## 실행 방법
 
-Python 3.10 이상에서 별도 패키지 설치 없이 프로젝트 루트에서 실행합니다.
+Python 3.10 이상이 필요하며, 별도 패키지 설치는 필요하지 않습니다.
+macOS/Linux에서는 프로젝트 루트에서 가상환경 사용을 권장합니다.
+
+처음 실행할 때:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 main.py
+```
+
+이미 `.venv`를 생성한 이후에는:
+
+```bash
+source .venv/bin/activate
+python3 main.py
+```
+
+가상환경 종료:
+
+```bash
+deactivate
+```
+
+가상환경 없이 바로 실행하려면 다음 명령만 실행해도 됩니다.
 
 ```bash
 python3 main.py
 ```
 
-모듈 실행도 지원합니다.
-
-```bash
-python3 -m ai_trust_check
-```
+모듈 실행(`python3 -m ai_trust_check`)도 지원합니다.
 
 ## 프로젝트 구조
 
