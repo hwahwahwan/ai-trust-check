@@ -112,6 +112,24 @@ F6은 최신성이 중요하고 현재에도 유효하면 **예**, 오래된 정
 생기고, 이 사실이 다음 규칙의 조건이 됩니다.
 실행 화면에서 규칙의 발화 이유, 새 Fact, 최종 결과를 확인할 수 있습니다.
 
+## 설계 기준 및 참고 자료
+
+F1~F9와 R1~R10은 특정 기관이나 논문의 공식 평가 기준이 아닙니다.
+아래 자료의 관점과 평가 방법을 참고해 **교육용 전향추론 시스템에 맞게 단순화·재구성**했습니다.
+
+- **NIST AI 600-1**은 자신 있게 제시되는 사실 오류와 내부 모순, 허위 인용의 위험을 설명하고, 생성 결과의 출처·인용 검증을 권고합니다(§2.2, MS-2.5-003). [NIST 원문](https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence)
+- **SAFE**는 긴 답변을 개별 사실로 나누고 검색 결과가 각 사실을 뒷받침하는지 평가합니다. 논문은 날짜·통계의 오류도 예로 듭니다(§1, §3). [Google DeepMind 원문](https://deepmind.google/research/publications/85420)
+- **FActScore**는 답변을 원자적 사실로 나누어 신뢰할 만한 지식 출처가 뒷받침하는 비율을 평가합니다. 출처의 지지 여부와 절대적인 참·거짓을 구분합니다(§3.1). [논문 원문](https://aclanthology.org/2023.emnlp-main.741)
+
+이를 바탕으로 출처의 존재·접근성·신뢰성, 주장에 대한 실제 뒷받침, 날짜·수치의 근거,
+내부 일관성을 확인하도록 구성했습니다. 독립 자료와의 교차검증(F5)은 외부 근거 확인을
+프로젝트에 적용한 방식이며, SAFE나 FActScore의 평가 절차를 그대로 구현한 것은 아닙니다.
+
+현재 시점의 유효성(F6)은 프로젝트에서 별도로 정한 확인 기준입니다.
+불확실한 내용을 과도하게 단정하지 않는지 확인하는 F9는 NIST의 자신 있는 오류에 대한
+위험 설명을 참고한 자체 질문이며, 원문이 F6·F9를 동일한 평가 항목으로 정의한 것은 아닙니다.
+질문 생략·중립 처리, 세 검증 축의 결합, R1~R10의 조건과 3단계 판정도 자체 설계입니다.
+
 ## 프로젝트 구조
 
 ```text
@@ -133,3 +151,9 @@ ai-trust-check/
 ```bash
 python3 -m unittest discover -s tests -v
 ```
+
+## 참고 자료
+
+- NIST (2024). [Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile (NIST AI 600-1)](https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence)
+- Wei et al. (2024). [Long-form factuality in large language models](https://deepmind.google/research/publications/85420) — SAFE(Search-Augmented Factuality Evaluator).
+- Min et al. (2023). [FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation](https://aclanthology.org/2023.emnlp-main.741)
