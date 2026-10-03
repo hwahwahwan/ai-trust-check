@@ -58,7 +58,7 @@ RULES = (
     Rule("R5", (yes("F8"), neutral_or_yes("F9")), "답변 자체 신뢰성 확보"),
     Rule("R6", (Condition("외부 근거 검증 완료"), Condition("사실 정보 검증 완료")), "사실적 신뢰성 높음"),
     Rule("R7", (Condition("사실적 신뢰성 높음"), Condition("답변 자체 신뢰성 확보")), TRUSTED),
-    Rule("R8", (Condition("F4", (Answer.NO,)), Condition("F8", (Answer.NO,))), "명확한 신뢰성 문제 발견", match_any=True),
+    Rule("R8", (Condition("F4", (Answer.NO,)), Condition("F6", (Answer.NO,)), Condition("F8", (Answer.NO,))), "명확한 신뢰성 문제 발견", match_any=True),
     Rule("R9", (Condition("명확한 신뢰성 문제 발견"),), LOW_TRUST),
 )
 

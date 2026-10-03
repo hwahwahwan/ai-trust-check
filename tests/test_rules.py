@@ -12,12 +12,32 @@ class RulesTests(unittest.TestCase):
 
     def test_required_scenarios(self):
         scenarios = [({}, TRUSTED), ({'F5': Answer.NO}, NEEDS_REVIEW),
-                     ({'F4': Answer.NO}, LOW_TRUST), ({'F8': Answer.NO}, LOW_TRUST),
+                     ({'F4': Answer.NO}, LOW_TRUST), ({'F6': Answer.NO}, LOW_TRUST), ({'F8': Answer.NO}, LOW_TRUST),
                      ({'F6': Answer.NA}, TRUSTED), ({'F7': Answer.NA}, TRUSTED),
                      ({'F9': Answer.NA}, TRUSTED)]
         for changes, expected in scenarios:
             with self.subTest(changes=changes):
                 self.assertEqual(final_status(evaluate(self.answers | changes)), expected)
+
+    def test_outdated_current_information_triggers_problem_even_without_sources(self):
+        sources = [{}, {'F1': Answer.NO, **{f: Answer.UNKNOWN for f in ('F2', 'F3', 'F4', 'F5')}},
+                   {'F2': Answer.NO, **{f: Answer.UNKNOWN for f in ('F3', 'F4', 'F5')}}]
+        for source in sources:
+            with self.subTest(source=source):
+                result = evaluate(self.answers | source | {'F6': Answer.NO})
+                self.assertEqual(final_status(result), LOW_TRUST)
+                steps = {step.rule_id: step for step in result.trace}
+                self.assertEqual(steps['R8'].reasons, ('최신성 = 아니오',))
+                self.assertLess(steps['R8'].cycle, steps['R9'].cycle)
+                self.assertNotIn('R4', steps)
+                self.assertNotIn('R10', steps)
+
+    def test_fixed_historical_fact_does_not_require_freshness(self):
+        result = evaluate(self.answers | {'F6': Answer.NA})
+        self.assertEqual(final_status(result), TRUSTED)
+        ids = [step.rule_id for step in result.trace]
+        self.assertIn('R4', ids)
+        self.assertNotIn('R8', ids)
 
     def test_reachable_source_states(self):
         # 실제 질문 흐름에서 도달 가능한 출처 상태만 생성한다.
@@ -35,7 +55,7 @@ class RulesTests(unittest.TestCase):
                 answers = dict(zip((q.id for q in QUESTIONS), source + remaining))
                 with self.subTest(answers=answers):
                     result = evaluate(answers)
-                    if answers['F4'] is Answer.NO or answers['F8'] is Answer.NO:
+                    if any(answers[fact] is Answer.NO for fact in ('F4', 'F6', 'F8')):
                         expected = LOW_TRUST
                     elif source != (Answer.YES,) * 5 or Answer.NO in remaining:
                         expected = NEEDS_REVIEW
