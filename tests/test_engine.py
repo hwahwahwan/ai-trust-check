@@ -29,7 +29,10 @@ class EngineTests(unittest.TestCase):
 
     def test_invalid_programmatic_facts_are_rejected(self):
         for answers in ({}, self.answers | {'F1': Answer.NA},
-                        self.answers | {'F1': True}, self.answers | {'F10': Answer.YES}):
+                        self.answers | {'F1': True}, self.answers | {'F10': Answer.YES},
+                        self.answers | {'F1': Answer.NO}, self.answers | {'F2': Answer.NO},
+                        self.answers | {'F4': Answer.UNKNOWN}, self.answers | {'F6': Answer.UNKNOWN},
+                        self.answers | {'F1': Answer.NO, 'F2': Answer.NA}):
             with self.subTest(answers=answers), self.assertRaises(ValueError):
                 evaluate(answers)
 

@@ -7,6 +7,7 @@ class Answer(Enum):
     YES = "예"
     NO = "아니오"
     NA = "해당 없음"
+    UNKNOWN = "미확인"
 
 
 @dataclass(frozen=True)
@@ -30,10 +31,23 @@ QUESTIONS = (
 )
 
 
+def skip_reason(question_id: str, answers: dict[str, Answer]) -> str | None:
+    """출처 후속 질문의 선행 조건. 입력과 검증이 같은 기준을 사용한다."""
+    if question_id in ("F2", "F3", "F4", "F5") and answers.get("F1") is Answer.NO:
+        return "출처가 제시되지 않음"
+    if question_id in ("F3", "F4", "F5") and answers.get("F2") is Answer.NO:
+        return "출처에 접근할 수 없음"
+    return None
+
+
 def validate_answers(answers: dict[str, Answer]) -> None:
     if set(answers) != {q.id for q in QUESTIONS}:
         raise ValueError("F1~F9의 초기 사실을 모두 입력해야 합니다.")
     for q in QUESTIONS:
         value = answers[q.id]
-        if not isinstance(value, Answer) or (value is Answer.NA and not q.allow_na):
+        if skip_reason(q.id, answers):
+            if value is not Answer.UNKNOWN:
+                raise ValueError(f"{q.id}는 선행 조건 미충족으로 미확인이어야 합니다.")
+            continue
+        if value is Answer.UNKNOWN or not isinstance(value, Answer) or (value is Answer.NA and not q.allow_na):
             raise ValueError(f"{q.id}에 허용되지 않은 응답입니다.")

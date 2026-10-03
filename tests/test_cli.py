@@ -32,6 +32,29 @@ class CliTests(unittest.TestCase):
                 self.assertEqual(main(), 1)
                 self.assertIn('판정하지 않았습니다', output.call_args.args[0])
 
+    def test_conditional_questions(self):
+        cases = [
+            (['2', '1', '1', '1', '1'], ['F1', 'F6', 'F7', 'F8', 'F9'], ['F2', 'F3', 'F4', 'F5']),
+            (['1', '2', '1', '1', '1', '1'], ['F1', 'F2', 'F6', 'F7', 'F8', 'F9'], ['F3', 'F4', 'F5']),
+            (['1', '1', '2', '2', '1', '3', '3', '1', '3'], [q.id for q in QUESTIONS], []),
+        ]
+        for values, expected_questions, skipped in cases:
+            with self.subTest(values=values):
+                pending = iter(values)
+                asked, notices = [], []
+
+                def read(prompt):
+                    asked.append(prompt.split('.')[0])
+                    return next(pending)
+
+                answers = collect_answers(read, notices.append)
+                self.assertEqual(asked, expected_questions)
+                self.assertEqual(len(notices), len(skipped))
+                for fact in skipped:
+                    self.assertIs(answers[fact], Answer.UNKNOWN)
+                validate_answers(answers)
+                self.assertEqual(next(pending, None), None)
+
     def test_module_entrypoint(self):
         process = subprocess.run([sys.executable, '-m', 'ai_trust_check'],
                                  input='1\n' * 9, text=True, capture_output=True)

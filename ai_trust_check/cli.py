@@ -2,7 +2,7 @@
 from typing import Callable
 
 from .engine import InferenceResult, evaluate, final_status
-from .facts import Answer, QUESTIONS
+from .facts import Answer, QUESTIONS, skip_reason
 
 
 def collect_answers(
@@ -11,6 +11,11 @@ def collect_answers(
 ) -> dict[str, Answer]:
     answers = {}
     for q in QUESTIONS:
+        reason = skip_reason(q.id, answers)
+        if reason:
+            answers[q.id] = Answer.UNKNOWN
+            write(f"{q.id}. {q.label}: 미확인 ({reason}, 질문 건너뜀)")
+            continue
         choices = {"1": Answer.YES, "2": Answer.NO}
         if q.allow_na:
             choices["3"] = Answer.NA
@@ -44,9 +49,9 @@ def format_result(result: InferenceResult) -> str:
 def main() -> int:
     print("생성형 AI 답변 신뢰성 검증 전문가 시스템")
     print("답변과 출처를 직접 확인한 뒤 입력하세요. API나 자동 사실 확인은 사용하지 않습니다.")
-    print("F6·F7·F9만 해당 없음을 허용합니다.")
+    print("F6·F7·F9만 해당 없음을 허용합니다. 출처가 없거나 접근 불가하면 후속 질문은 미확인으로 건너뜁니다.")
     print("주의: F4의 아니오는 출처 내용이 주장을 뒷받침하지 않음을 확인했다는 뜻입니다.")
-    print("F4 또는 F8을 확인할 수 없다면 Ctrl+C로 중단한 뒤 자료를 확인하세요.\n")
+    print("미확인은 반증이 아니라 검증 부족으로 처리합니다.\n")
     try:
         answers = collect_answers()
     except (EOFError, KeyboardInterrupt):

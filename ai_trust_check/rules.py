@@ -65,7 +65,10 @@ RULES = (
 
 def fallback_reasons(memory: WorkingMemory) -> tuple[str, ...]:
     """R10 조건 정의. 엔진이 R1~R9 종료 후 호출하며, 사실은 변경하지 않는다."""
-    missing = tuple(f"{q.label} = 아니오" for q in QUESTIONS if memory.initial[q.id] is Answer.NO)
+    missing = tuple(
+        f"{q.label} = {memory.initial[q.id].value}"
+        for q in QUESTIONS if memory.initial[q.id] in (Answer.NO, Answer.UNKNOWN)
+    )
     if TRUSTED not in memory.derived and LOW_TRUST not in memory.derived and missing:
         return (f"{TRUSTED} 미도출", f"{LOW_TRUST} 미도출") + missing
     return ()
