@@ -1,41 +1,13 @@
 """규칙 데이터와 Working Memory를 분리한 전향추론 엔진."""
 from dataclasses import dataclass, field
-from .facts import Answer, QUESTIONS, validate_answers
+from .facts import Answer, validate_answers
+from .rules import RULES, LOW_TRUST, TRUSTED, NEEDS_REVIEW, Rule, fallback_reasons
 
 
 @dataclass
 class WorkingMemory:
     initial: dict[str, Answer]
     derived: set[str] = field(default_factory=set)
-
-
-@dataclass(frozen=True)
-class Condition:
-    fact: str
-    accepted: tuple[Answer, ...] = ()
-
-    def matches(self, memory: WorkingMemory) -> bool:
-        if self.accepted:
-            return memory.initial.get(self.fact) in self.accepted
-        return self.fact in memory.derived
-
-    def explain(self, memory: WorkingMemory) -> str:
-        if not self.accepted:
-            return self.fact
-        label = next(q.label for q in QUESTIONS if q.id == self.fact)
-        return f"{label} = {memory.initial[self.fact].value}"
-
-
-@dataclass(frozen=True)
-class Rule:
-    id: str
-    conditions: tuple[Condition, ...]
-    conclusion: str
-    match_any: bool = False
-
-    def matches(self, memory: WorkingMemory) -> bool:
-        results = (c.matches(memory) for c in self.conditions)
-        return any(results) if self.match_any else all(results)
 
 
 @dataclass(frozen=True)
@@ -73,3 +45,21 @@ def forward_chaining(initial: dict[str, Answer], rules: tuple[Rule, ...]) -> Inf
                 trace.append(step)
         cycle += 1
     return InferenceResult(memory, trace)
+
+
+def evaluate(answers: dict[str, Answer]) -> InferenceResult:
+    result = forward_chaining(answers, RULES)
+    # 부정 조건을 사용하는 R10은 R1~R9가 고정점에 도달한 뒤 별도로 평가한다.
+    reasons = fallback_reasons(result.memory)
+    if reasons:
+        cycle = max((step.cycle for step in result.trace), default=0) + 1
+        result.memory.derived.add(NEEDS_REVIEW)
+        result.trace.append(TraceStep(cycle, "R10", reasons, NEEDS_REVIEW))
+    return result
+
+
+def final_status(result: InferenceResult) -> str:
+    for status in (LOW_TRUST, TRUSTED, NEEDS_REVIEW):
+        if status in result.memory.derived:
+            return status
+    raise ValueError("최종 상태가 없습니다. evaluate() 결과를 사용하세요.")

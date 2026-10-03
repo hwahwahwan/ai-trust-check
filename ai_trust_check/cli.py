@@ -1,7 +1,27 @@
 """터미널 실행과 사람이 읽을 수 있는 추론 과정 출력."""
-from .engine import InferenceResult
-from .facts import QUESTIONS, collect_answers
-from .rules import evaluate, final_status
+from typing import Callable
+
+from .engine import InferenceResult, evaluate, final_status
+from .facts import Answer, QUESTIONS
+
+
+def collect_answers(
+    read: Callable[[str], str] = input,
+    write: Callable[[str], None] = print,
+) -> dict[str, Answer]:
+    answers = {}
+    for q in QUESTIONS:
+        choices = {"1": Answer.YES, "2": Answer.NO}
+        if q.allow_na:
+            choices["3"] = Answer.NA
+        options = " / ".join(f"{key}={value.value}" for key, value in choices.items())
+        while True:
+            raw = read(f"{q.id}. {q.prompt} [{options}]: ").strip()
+            if raw in choices:
+                answers[q.id] = choices[raw]
+                break
+            write(f"잘못된 입력입니다. {', '.join(choices)} 중 하나를 입력하세요.")
+    return answers
 
 
 def format_result(result: InferenceResult) -> str:

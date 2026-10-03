@@ -1,10 +1,45 @@
 """명세의 R1~R9와 고정점 이후에만 적용하는 R10."""
-from .engine import Condition, Rule, TraceStep, InferenceResult, forward_chaining
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .engine import WorkingMemory
 from .facts import Answer, QUESTIONS
 
 TRUSTED = "신뢰 조건 충족"
 NEEDS_REVIEW = "추가 검증 필요"
 LOW_TRUST = "신뢰도 낮음"
+
+
+@dataclass(frozen=True)
+class Condition:
+    fact: str
+    accepted: tuple[Answer, ...] = ()
+
+    def matches(self, memory: WorkingMemory) -> bool:
+        if self.accepted:
+            return memory.initial.get(self.fact) in self.accepted
+        return self.fact in memory.derived
+
+    def explain(self, memory: WorkingMemory) -> str:
+        if not self.accepted:
+            return self.fact
+        label = next(q.label for q in QUESTIONS if q.id == self.fact)
+        return f"{label} = {memory.initial[self.fact].value}"
+
+
+@dataclass(frozen=True)
+class Rule:
+    id: str
+    conditions: tuple[Condition, ...]
+    conclusion: str
+    match_any: bool = False
+
+    def matches(self, memory: WorkingMemory) -> bool:
+        results = (c.matches(memory) for c in self.conditions)
+        return any(results) if self.match_any else all(results)
 
 
 def yes(fact: str) -> Condition:
@@ -28,20 +63,9 @@ RULES = (
 )
 
 
-def evaluate(answers: dict[str, Answer]) -> InferenceResult:
-    result = forward_chaining(answers, RULES)
-    # 부정 조건을 사용하는 R10은 R1~R9가 고정점에 도달한 뒤 별도로 평가한다.
-    missing = tuple(f"{q.label} = 아니오" for q in QUESTIONS if answers[q.id] is Answer.NO)
-    if TRUSTED not in result.memory.derived and LOW_TRUST not in result.memory.derived and missing:
-        reasons = (f"{TRUSTED} 미도출", f"{LOW_TRUST} 미도출") + missing
-        cycle = max((step.cycle for step in result.trace), default=0) + 1
-        result.memory.derived.add(NEEDS_REVIEW)
-        result.trace.append(TraceStep(cycle, "R10", reasons, NEEDS_REVIEW))
-    return result
-
-
-def final_status(result: InferenceResult) -> str:
-    for status in (LOW_TRUST, TRUSTED, NEEDS_REVIEW):
-        if status in result.memory.derived:
-            return status
-    raise ValueError("최종 상태가 없습니다. evaluate() 결과를 사용하세요.")
+def fallback_reasons(memory: WorkingMemory) -> tuple[str, ...]:
+    """R10 조건 정의. 엔진이 R1~R9 종료 후 호출하며, 사실은 변경하지 않는다."""
+    missing = tuple(f"{q.label} = 아니오" for q in QUESTIONS if memory.initial[q.id] is Answer.NO)
+    if TRUSTED not in memory.derived and LOW_TRUST not in memory.derived and missing:
+        return (f"{TRUSTED} 미도출", f"{LOW_TRUST} 미도출") + missing
+    return ()

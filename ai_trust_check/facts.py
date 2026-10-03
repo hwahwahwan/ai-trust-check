@@ -1,7 +1,6 @@
-"""초기 사실 정의와 숫자 입력 처리."""
+"""F1~F9 초기 사실, 입력 항목 및 허용 응답 정의."""
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable
 
 
 class Answer(Enum):
@@ -38,22 +37,3 @@ def validate_answers(answers: dict[str, Answer]) -> None:
         value = answers[q.id]
         if not isinstance(value, Answer) or (value is Answer.NA and not q.allow_na):
             raise ValueError(f"{q.id}에 허용되지 않은 응답입니다.")
-
-
-def collect_answers(
-    read: Callable[[str], str] = input,
-    write: Callable[[str], None] = print,
-) -> dict[str, Answer]:
-    answers = {}
-    for q in QUESTIONS:
-        choices = {"1": Answer.YES, "2": Answer.NO}
-        if q.allow_na:
-            choices["3"] = Answer.NA
-        options = " / ".join(f"{key}={value.value}" for key, value in choices.items())
-        while True:
-            raw = read(f"{q.id}. {q.prompt} [{options}]: ").strip()
-            if raw in choices:
-                answers[q.id] = choices[raw]
-                break
-            write(f"잘못된 입력입니다. {', '.join(choices)} 중 하나를 입력하세요.")
-    return answers
