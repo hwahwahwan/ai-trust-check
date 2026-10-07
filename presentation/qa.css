@@ -41,6 +41,3 @@
 .built span { align-self: baseline; letter-spacing: -.025em; line-height: 1; font-weight: 700; }
 .next h3, .next p { letter-spacing: -.03em; line-height: 1.35; }
 .end-statement { line-height: 1.25; letter-spacing: -.05em; }
-
-.center-source { top: 85px; }
-.center-source small { position: relative; top: 95px; margin-left: 45px; }
