@@ -44,18 +44,18 @@
 
 /* Slide 9 — actual verification case. */
 .demo { justify-content: flex-start; }
-.demo h2 { margin-top: .5em; }
-.case-screens { display: grid; grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr); gap: 18px; align-items: center; margin-top: .5em; }
+.demo h2 { margin-top: .35em; }
+.case-screens { display: grid; grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr); gap: 18px; align-items: center; margin-top: .35em; }
 .case-screens figure { margin: 0; min-width: 0; }
-.case-screens figcaption { display: flex; align-items: baseline; gap: .55em; margin-bottom: .35em; }
+.case-screens figcaption { display: flex; align-items: baseline; gap: .55em; margin-bottom: .28em; }
 .case-screens figcaption b { font-size: .48em; color: var(--teal); letter-spacing: .08em; }
 .case-screens figcaption span { font-size: .58em; font-weight: 700; }
 .case-arrow { color: var(--teal); font-size: 1.15em; font-style: normal; text-align: center; }
-.case-image { height: 430px; overflow: hidden; border-top: 2px solid var(--teal); background: #111; }
+.case-image { height: 560px; overflow: hidden; border-top: 2px solid var(--teal); background: #111; }
 .case-image img { display: block; width: 100%; height: 100%; }
-.gemini-shot img { object-fit: cover; object-position: center top; }
+.gemini-shot img { object-fit: contain; }
 .terminal-shot { display: flex; justify-content: center; }
 .terminal-shot img { object-fit: contain; }
-.case-flow { display: flex; align-items: baseline; justify-content: center; gap: .7em; margin-top: .65em!important; font-size: .57em; font-weight: 700; }
+.case-flow { display: flex; align-items: baseline; justify-content: center; gap: .7em; margin-top: .55em!important; font-size: .57em; font-weight: 700; }
 .case-flow i { color: var(--teal); font-style: normal; }
 .case-flow strong { color: var(--teal); border-bottom: 2px solid var(--teal); padding-bottom: .12em; }
