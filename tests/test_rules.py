@@ -19,6 +19,33 @@ class RulesTests(unittest.TestCase):
             with self.subTest(changes=changes):
                 self.assertEqual(final_status(evaluate(self.answers | changes)), expected)
 
+    def test_f4_partial_match_uses_fallback_review(self):
+        answers = self.answers | {'F4': Answer.PARTIAL, 'F9': Answer.NA}
+        result = evaluate(answers)
+        ids = [step.rule_id for step in result.trace]
+        self.assertEqual(final_status(result), NEEDS_REVIEW)
+        self.assertNotIn('R2', ids)
+        self.assertNotIn('R8', ids)
+        self.assertNotIn('R9', ids)
+        self.assertEqual(ids[-1], 'R10')
+
+    def test_f4_outcome_cases(self):
+        cases = (
+            (Answer.YES, TRUSTED),
+            (Answer.NO, LOW_TRUST),
+            (Answer.PARTIAL, NEEDS_REVIEW),
+        )
+        for f4, expected in cases:
+            with self.subTest(f4=f4):
+                result = evaluate(self.answers | {'F4': f4, 'F9': Answer.NA})
+                ids = [step.rule_id for step in result.trace]
+                self.assertEqual(final_status(result), expected)
+                if f4 is Answer.PARTIAL:
+                    self.assertNotIn('R2', ids)
+                    self.assertNotIn('R8', ids)
+                    self.assertNotIn('R9', ids)
+                    self.assertEqual(ids[-1], 'R10')
+
     def test_outdated_current_information_triggers_problem_even_without_sources(self):
         sources = [{}, {'F1': Answer.NO, **{f: Answer.UNKNOWN for f in ('F2', 'F3', 'F4', 'F5')}},
                    {'F2': Answer.NO, **{f: Answer.UNKNOWN for f in ('F3', 'F4', 'F5')}}]
@@ -46,7 +73,9 @@ class RulesTests(unittest.TestCase):
             (Answer.YES, Answer.NO) + (Answer.UNKNOWN,) * 3,
         ]
         source_states.extend((Answer.YES, Answer.YES, *tail)
-                             for tail in itertools.product((Answer.YES, Answer.NO), repeat=3))
+                             for tail in itertools.product((Answer.YES, Answer.NO),
+                                                           (Answer.YES, Answer.NO, Answer.PARTIAL),
+                                                           (Answer.YES, Answer.NO)))
         for source in source_states:
             for remaining in itertools.product((Answer.YES, Answer.NO, Answer.NA),
                                                (Answer.YES, Answer.NO, Answer.NA),

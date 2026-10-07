@@ -26,6 +26,12 @@ class CliTests(unittest.TestCase):
                          '→ 새로운 사실: 명확한 신뢰성 문제 발견', '[생성된 사실]', '최종 결과:\n신뢰도 낮음'):
             self.assertIn(expected, output)
 
+    def test_f4_partial_input_and_output(self):
+        values = iter(['1', '1', '1', '3', '1', '1', '1', '1', '3'])
+        answers = collect_answers(lambda _: next(values))
+        self.assertIs(answers['F4'], Answer.PARTIAL)
+        self.assertIn('F4. AI 주장 뒷받침: 일부 일치', format_result(evaluate(answers)))
+
     def test_interrupt_does_not_produce_judgment(self):
         for interruption in (KeyboardInterrupt, EOFError):
             with self.subTest(interruption=interruption), patch('ai_trust_check.cli.collect_answers', side_effect=interruption), patch('builtins.print') as output:

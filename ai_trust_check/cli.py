@@ -19,6 +19,8 @@ def collect_answers(
         choices = {"1": Answer.YES, "2": Answer.NO}
         if q.allow_na:
             choices["3"] = Answer.NA
+        if q.allow_partial:
+            choices["3"] = Answer.PARTIAL
         options = " / ".join(f"{key}={value.value}" for key, value in choices.items())
         while True:
             raw = read(f"{q.id}. {q.prompt} [{options}]: ").strip()
@@ -50,7 +52,7 @@ def main() -> int:
     print("생성형 AI 답변 신뢰성 검증 전문가 시스템")
     print("답변과 출처를 직접 확인한 뒤 입력하세요. API나 자동 사실 확인은 사용하지 않습니다.")
     print("F6·F7·F9만 해당 없음을 허용합니다. 출처가 없거나 접근 불가하면 후속 질문은 미확인으로 건너뜁니다.")
-    print("주의: F4의 아니오는 출처 내용이 주장을 뒷받침하지 않음을 확인했다는 뜻입니다.")
+    print("주의: F4의 일부 일치는 검증 부족으로, 아니오는 명확한 불일치로 처리합니다.")
     print("미확인은 반증이 아니라 검증 부족으로 처리합니다.\n")
     try:
         answers = collect_answers()
