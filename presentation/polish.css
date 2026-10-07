@@ -1,0 +1,5 @@
+/* Final layout pass: scoped to slides with diagram and stat-row corrections. */
+.architecture .connector path,.architecture .callout path,.source-map svg path,.rules-map path{vector-effect:non-scaling-stroke;stroke-linecap:square;stroke-linejoin:miter}
+.built>div{display:grid;grid-template-columns:120px minmax(0,1fr);column-gap:36px;align-items:baseline;min-height:86px}
+.built b{line-height:.82}
+.built span{line-height:1}

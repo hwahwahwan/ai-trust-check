@@ -31,3 +31,12 @@ dist/
 *.swp
 *.swo
 *~
+
+# 로컬 로그·캐시 및 발표자료 검수 산출물
+*.log
+.cache/
+tmp/
+node_modules/
+screenshots/
+qa-output/
+review-output/

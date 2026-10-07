@@ -1,0 +1,46 @@
+/* Final presentation QA: shared type scale and alignment corrections. */
+:root {
+  --type-display: 4.2em;
+  --type-title: 2.02em;
+  --type-body: .72em;
+  --leading-display: .9;
+  --leading-title: 1.14;
+  --tracking-tight: -.065em;
+  --tracking-body: -.025em;
+}
+
+.reveal h1 { font-size: var(--type-display); line-height: var(--leading-display); letter-spacing: var(--tracking-tight); font-weight: 700; }
+.reveal h2 { font-size: var(--type-title); line-height: var(--leading-title); letter-spacing: var(--tracking-tight); font-weight: 700; }
+.reveal h3, .reveal p, .reveal li { letter-spacing: var(--tracking-body); }
+.reveal .s2-layout { grid-template-columns: 47% 1fr; gap: 4%; }
+.reveal .s2-layout h2 { font-size: 1.72em; line-height: 1.13; letter-spacing: -.07em; max-width: 690px; }
+
+/* Slide 4 — shared baselines and connector landing points. */
+.architecture .arch-text .big { letter-spacing: -.04em; }
+.architecture .arch-text text { letter-spacing: -.015em; }
+.architecture .callout text { letter-spacing: -.02em; }
+.architecture .connector path { vector-effect: non-scaling-stroke; stroke-linecap: square; stroke-linejoin: miter; }
+.architecture .connector path:nth-child(2),
+.architecture .connector path:nth-child(3) { stroke-width: 2.2; }
+
+/* Slide 5 — source map labels and converging line rhythm. */
+.source-map article b { letter-spacing: -.045em; line-height: 1; }
+.source-map article p, .center-source small { letter-spacing: -.02em; }
+.center-source p { letter-spacing: -.06em; }
+.source-map svg path { vector-effect: non-scaling-stroke; stroke-linecap: square; }
+
+/* Slide 7 — lock SVG labels to a technical-drawing baseline. */
+.rules-map { shape-rendering: geometricPrecision; }
+.rules-map text { letter-spacing: -.02em; dominant-baseline: middle; }
+.rules-map .r-zone text { letter-spacing: -.035em; }
+.rules-map path { vector-effect: non-scaling-stroke; stroke-linecap: square; stroke-linejoin: miter; }
+
+/* Slide 10 — align numeric and bilingual labels on an explicit baseline. */
+.built > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); column-gap: 36px; min-height: 86px; align-items: baseline; }
+.built b { justify-self: start; letter-spacing: -.09em; line-height: .82; font-weight: 700; }
+.built span { align-self: baseline; letter-spacing: -.025em; line-height: 1; font-weight: 700; }
+.next h3, .next p { letter-spacing: -.03em; line-height: 1.35; }
+.end-statement { line-height: 1.25; letter-spacing: -.05em; }
+
+.center-source { top: 85px; }
+.center-source small { position: relative; top: 95px; margin-left: 45px; }

@@ -1,0 +1,4 @@
+/* Lightweight print companion for reveal.js PDF export. */
+@page { size: 16in 9in; margin: 0; }
+html.print-pdf .reveal .slides section { page-break-after: always; }
+html.print-pdf .reveal .slides { position: static !important; }
